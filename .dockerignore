@@ -1,5 +1,0 @@
-# Ignore everything by default
-**
-
-# Explicitly include the files we care about
-!haproxy.cfg
