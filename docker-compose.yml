@@ -3,5 +3,40 @@ version: '3.7'
 services:
   haproxy:
     build: haproxy
+    restart: always
     ports:
-      - 80:80
+      - ${HTTP_PORT:-80}:80
+
+  matomo:
+    image: matomo
+    restart: always
+    volumes:
+      - matomo:/var/www/html
+    environment:
+      MATOMO_DATABASE_HOST: matomo_database
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_DBNAME: "${MATOMO_DATABASE_DBNAME}"
+      MATOMO_DATABASE_USERNAME: "${MATOMO_DATABASE_USERNAME}"
+      MATOMO_DATABASE_PASSWORD: "${MATOMO_DATABASE_PASSWORD}"
+      VIRTUAL_HOST: ""
+    ports:
+      - ${MATOMO_PORT:-8080}:80
+    depends_on:
+      - matomo_database
+
+  matomo_database:
+    image: mariadb
+    command: --max-allowed-packet=64MB
+    restart: always
+    volumes:
+      - matomo_database:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
+
+volumes:
+  matomo:
+  matomo_database:
